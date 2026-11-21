@@ -271,7 +271,9 @@ validate_rle_filter <- function(filter, col_names) {
     abort_rle_unknown_filter_column(unknown)
   }
   if (anyDuplicated(names(filter)) > 0) {
-    abort_rle_duplicate_filter_column(names(filter)[[anyDuplicated(names(filter))]])
+    abort_rle_duplicate_filter_column(names(filter)[[anyDuplicated(names(
+      filter
+    ))]])
   }
 
   for (nm in names(filter)) {
@@ -500,7 +502,8 @@ abort_rle_bad_lengths <- function(name, call = caller_env()) {
   tibble_abort(
     call = call,
     paste0(
-      "Run lengths of column ", tick(name),
+      "Run lengths of column ",
+      tick(name),
       " must be positive integers, one per run value."
     )
   )
@@ -510,8 +513,13 @@ abort_rle_nrow_mismatch <- function(name, total, nrow, call = caller_env()) {
   tibble_abort(
     call = call,
     paste0(
-      "Run lengths of column ", tick(name), " sum to ", total,
-      ", not the declared ", nrow, " rows."
+      "Run lengths of column ",
+      tick(name),
+      " sum to ",
+      total,
+      ", not the declared ",
+      nrow,
+      " rows."
     )
   )
 }
@@ -544,7 +552,8 @@ abort_rle_bad_condition <- function(name, call = caller_env()) {
   tibble_abort(
     call = call,
     paste0(
-      "Filter condition for ", tick(name),
+      "Filter condition for ",
+      tick(name),
       " must be a length-one value or `rle_is_na()`."
     )
   )
@@ -557,7 +566,13 @@ abort_rle_duplicate_columns <- function(call = caller_env()) {
 abort_rle_bad_scalar <- function(arg, min, call = caller_env()) {
   tibble_abort(
     call = call,
-    paste0("`", arg, "` must be a whole number greater than or equal to ", min, ".")
+    paste0(
+      "`",
+      arg,
+      "` must be a whole number greater than or equal to ",
+      min,
+      "."
+    )
   )
 }
 

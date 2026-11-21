@@ -15,8 +15,6 @@ rle_is_na()
 \arguments{
 \item{file}{A connection or the path of the staging file to read.}
 
-\item{x}{A tibble or data frame to write.}
-
 \item{filter}{A named list of conditions, see section \emph{Filtering}.
 \code{NULL} returns every row.}
 
@@ -29,13 +27,16 @@ Must be a nonnegative whole number.}
 \item{limit}{Maximum number of surviving rows to return, or \code{Inf} for
 all remaining rows. Must be a positive whole number or \code{Inf}.}
 
+\item{x}{A tibble or data frame to write.}
+
 \item{version}{File format version, currently only \code{1L} is supported.}
 }
 \value{
-A \link[tibble:tibble-package]{tibble} with the original column types,
+A \link[=tibble-package]{tibble} with the original column types,
 ordered as requested in \code{columns}. If no row matches, the columns are
 still present with zero rows and their original types. If \code{columns}
-selects zero columns, the result still carries the correct number of rows.
+selects zero columns, the result still carries the correct number of
+rows.
 }
 \description{
 A warehouse staging file stores every column as a sequence of runs,
@@ -51,7 +52,7 @@ for the rows that are actually returned.
 }
 \section{File format}{
 
-The file is serialized with \code{\link[base:saveRDS]{saveRDS()}} and contains a list with the
+The file is serialized with \code{\link[=saveRDS]{saveRDS()}} and contains a list with the
 following elements:
 \itemize{
 \item \code{version}: format version, currently \code{1L}.

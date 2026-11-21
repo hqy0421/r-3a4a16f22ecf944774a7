@@ -67,7 +67,10 @@ test_that("missing values are matched only by rle_is_na()", {
   )
   # Equality against NA never matches, including NA values themselves.
   expect_equal(nrow(read_tibble_rle(path, filter = list(a = NA_integer_))), 0L)
-  expect_equal(nrow(read_tibble_rle(path, filter = list(b = NA_character_))), 0L)
+  expect_equal(
+    nrow(read_tibble_rle(path, filter = list(b = NA_character_))),
+    0L
+  )
 
   expect_identical(
     read_tibble_rle(path, filter = list(a = rle_is_na(), b = rle_is_na())),
@@ -85,7 +88,10 @@ test_that("offset and limit page over surviving rows in original order", {
   on.exit(unlink(path))
   write_tibble_rle(tbl, path)
 
-  expect_identical(read_tibble_rle(path, offset = 2L)$a, c(1L, 2L, 2L, 2L, 3L, 3L, 3L))
+  expect_identical(
+    read_tibble_rle(path, offset = 2L)$a,
+    c(1L, 2L, 2L, 2L, 3L, 3L, 3L)
+  )
   expect_identical(read_tibble_rle(path, offset = 2, limit = 2)$a, c(1L, 2L))
   expect_identical(read_tibble_rle(path, limit = 2)$a, c(1L, 1L))
   expect_equal(nrow(read_tibble_rle(path, offset = 9L)), 0L)
@@ -169,7 +175,11 @@ test_that("empty results preserve column types", {
   expect_s3_class(out$fct, "factor")
   expect_s3_class(out$dt, "Date")
 
-  out2 <- read_tibble_rle(path, filter = list(ch = "zzz"), columns = c("dt", "i"))
+  out2 <- read_tibble_rle(
+    path,
+    filter = list(ch = "zzz"),
+    columns = c("dt", "i")
+  )
   expect_named(out2, c("dt", "i"))
   expect_s3_class(out2$dt, "Date")
   expect_identical(typeof(out2$i), "integer")
@@ -196,7 +206,10 @@ test_that("filtering and paging never expand the full columns", {
   staged <- list(
     version = 1L,
     nrow = 10001L,
-    columns = list(x = col, y = list(values = 1:3, lengths = c(4000L, 4000L, 2001L)))
+    columns = list(
+      x = col,
+      y = list(values = 1:3, lengths = c(4000L, 4000L, 2001L))
+    )
   )
   path <- tempfile(fileext = ".rds")
   on.exit(unlink(path))
@@ -239,15 +252,27 @@ test_that("randomized filtering matches plain tibble semantics", {
   expected <- tbl[which(!is.na(tbl$a) & tbl$b == "x"), ]
   row.names(expected) <- NULL
   got <- read_tibble_rle(path, filter = list(a = 2L, b = "x"))
-  expect_equal(got, tbl[which(tbl$a == 2L & tbl$b == "x"), ], ignore_attr = "row.names")
+  expect_equal(
+    got,
+    tbl[which(tbl$a == 2L & tbl$b == "x"), ],
+    ignore_attr = "row.names"
+  )
 
   expected_na <- tbl[which(is.na(tbl$a)), ]
   row.names(expected_na) <- NULL
-  expect_identical(read_tibble_rle(path, filter = list(a = rle_is_na())), expected_na)
+  expect_identical(
+    read_tibble_rle(path, filter = list(a = rle_is_na())),
+    expected_na
+  )
 
   for (off in c(0L, 5L, 50L)) {
     for (lim in c(1L, 7L, Inf)) {
-      got <- read_tibble_rle(path, filter = list(b = "x"), offset = off, limit = lim)
+      got <- read_tibble_rle(
+        path,
+        filter = list(b = "x"),
+        offset = off,
+        limit = lim
+      )
       base <- which(tbl$b == "x")
       if (off < length(base)) {
         base <- base[(off + 1L):length(base)]
@@ -281,7 +306,10 @@ test_that("validation rejects malformed staging files", {
   bad <- good
   bad$version <- 2L
   saveRDS(bad, path)
-  expect_error(read_tibble_rle(path), class = "tibble_error_rle_unknown_version")
+  expect_error(
+    read_tibble_rle(path),
+    class = "tibble_error_rle_unknown_version"
+  )
 
   bad <- good
   bad$nrow <- -1L
@@ -344,21 +372,39 @@ test_that("validation rejects bad arguments", {
     read_tibble_rle(path, filter = list(a = 1:2)),
     class = "tibble_error_rle_bad_condition"
   )
-  expect_error(read_tibble_rle(path, filter = list(1L)), class = "tibble_error_rle_bad_filter")
+  expect_error(
+    read_tibble_rle(path, filter = list(1L)),
+    class = "tibble_error_rle_bad_filter"
+  )
   expect_error(
     read_tibble_rle(path, filter = list(a = 1L, a = 2L)),
     class = "tibble_error_rle_duplicate_filter_column"
   )
-  expect_error(read_tibble_rle(path, offset = -1L), class = "tibble_error_rle_bad_scalar")
-  expect_error(read_tibble_rle(path, offset = 1.5), class = "tibble_error_rle_bad_scalar")
-  expect_error(read_tibble_rle(path, limit = 0L), class = "tibble_error_rle_bad_limit")
-  expect_error(read_tibble_rle(path, limit = -1L), class = "tibble_error_rle_bad_limit")
+  expect_error(
+    read_tibble_rle(path, offset = -1L),
+    class = "tibble_error_rle_bad_scalar"
+  )
+  expect_error(
+    read_tibble_rle(path, offset = 1.5),
+    class = "tibble_error_rle_bad_scalar"
+  )
+  expect_error(
+    read_tibble_rle(path, limit = 0L),
+    class = "tibble_error_rle_bad_limit"
+  )
+  expect_error(
+    read_tibble_rle(path, limit = -1L),
+    class = "tibble_error_rle_bad_limit"
+  )
   expect_error(read_tibble_rle(path, columns = "zzz"))
   expect_error(
     read_tibble_rle(path, columns = c("a", "a")),
     class = "tibble_error_rle_duplicate_columns"
   )
-  expect_error(write_tibble_rle(list(a = 1), path), class = "tibble_error_rle_must_be_tibble")
+  expect_error(
+    write_tibble_rle(list(a = 1), path),
+    class = "tibble_error_rle_must_be_tibble"
+  )
 })
 
 test_that("rle_is_na() is a recognizable condition", {
